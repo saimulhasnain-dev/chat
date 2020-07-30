@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h5>Send Message</h5>
+    <button id="send-message">Send Message</button>
+    <h5>Users List</h5>
+    <div id="users-list"></div>
+    <h5>Conversations List</h5>
+    <div id="conversations-list"></div>
+
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/socket.io.js"></script>
+    <script>
+        var baseurl = 'http://localhost:3000';
+
+        var socket = io(baseurl, {
+            transportOptions: {
+                polling: {
+                    extraHeaders: {
+                        'user_id': 1
+                    }
+                }
+            }
+        });
+
+        $.get(baseurl + '/users', function(data) {
+            let output = '';
+            data.forEach(function (user) {
+                output += `<p>User Id: ${user.id}</p><p>Name: ${user.name}</p><hr/>`
+            });
+            $('#users-list').append(output);
+        });
+
+        $.get(baseurl + '/conversations', function(data) {
+            let output = '';
+            data.forEach(function (conversation) {
+                output += `<p>Name: ${conversation.p1}</p><hr/>`
+            });
+            $('#conversations-list').append(output);
+        });
+        // console.log(socket);
+
+        $('#send-message').on('click', function () {
+            socket.emit('send-message', {
+                receiver_id: 1,
+                type: 'TEXT',
+                body: 'hiiii'
+            });
+        });
+
+        socket.on('new-message', function(data) {
+            alert(JSON.stringify(data));
+        });
+    </script>
+</body>
+</html>
